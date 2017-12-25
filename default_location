@@ -1,3 +1,10 @@
-if ($proxy_x_forwarded_proto = 'http') {
-    return 301 https://$host$request_uri;
+location ~* HEALTH_CHECK_URL {
+    proxy_pass http://$host$request_uri;
+    proxy_pass_request_headers on;
+}
+
+location / {
+    if ($proxy_x_forwarded_proto = 'http') {
+        return 301 https://$host$request_uri;
+    }
 }

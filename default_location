@@ -1,6 +1,5 @@
 location ~* HEALTH_CHECK_URL {
-    proxy_pass http://$host$request_uri;
-    proxy_pass_request_headers on;
+    ## pass requests through
 }
 
 location / {

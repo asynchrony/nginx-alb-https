@@ -39,3 +39,28 @@ ExecStart=/usr/bin/docker run --name %p -e VIRTUAL_HOST=$VIRTUAL_HOST,$COREOS_EC
 ```
 
 CoreOS Metadata: https://coreos.com/ignition/docs/latest/metadata.html
+
+Example CoreOS UnitFile for a service being proxied by this container. This example uses the CoreOS metadata service to retrieve the private IP address.
+```
+[Unit]
+Description=This is service is responsible for granting api tokens
+After=docker.service <nginx-redirect.service> coreos-metadata.service
+Requires=docker.service <nginx-redirect.service> coreos-metadata.service
+
+[Service]
+EnvironmentFile=/run/metadata/coreos
+Environment=DOCKER_IMAGE=${local.auth_service_repository}:${var.auth_service_version}
+Environment=VIRTUAL_HOST=${local.host_name}.*,${local.host_name}-internal.*
+Restart=always
+ExecStartPre=-/usr/bin/docker kill %p
+ExecStartPre=/bin/bash -c 'eval $(docker run asynchrony/docker-aws aws ecr get-login --registry-ids 207418138085 --region us-east-1 --no-include-email)'
+ExecStartPre=-/usr/bin/docker rm %p
+ExecStartPre=/usr/bin/docker pull $DOCKER_IMAGE
+ExecStart=/usr/bin/docker run --name %p \
+    -e VIRTUAL_HOST=$${VIRTUAL_HOST},$${COREOS_EC2_IPV4_LOCAL} \
+    $DOCKER_IMAGE
+ExecStop=/usr/bin/docker stop %p
+
+[Install]
+WantedBy=multi-user.target
+```

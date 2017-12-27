@@ -1,9 +1,11 @@
-location ~* HEALTH_CHECK_URL {
-    ## pass requests through
+if ($proxy_x_forwarded_proto = "http") {
+    set $httpsRedirect 1;
 }
 
-location / {
-    if ($proxy_x_forwarded_proto = 'http') {
-        return 301 https://$host$request_uri;
-    }
+if ($request_uri ~* HEALTH_CHECK_URL){
+    set $httpsRedirect 0;
+}
+
+if ($httpsRedirect){
+    return 301 https://$host$request_uri;
 }

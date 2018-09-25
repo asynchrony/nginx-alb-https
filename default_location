@@ -9,3 +9,5 @@ if ($request_uri ~* HEALTH_CHECK_URL){
 if ($httpsRedirect){
     return 301 https://$host$request_uri;
 }
+
+client_max_body_size 10m;

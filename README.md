@@ -1,3 +1,6 @@
+# DEPRECATED
+AWS now supports forwarding HTTP to HTTPS via Load Balancers. So this container isn't necessary anymore, unless your using it in a legacy scenario.
+
 # nginx-alb-https
 Redirect AWS ALB HTTP requests to HTTPS. Any request that are using HTTPS will be passed through to the other containers.
 
